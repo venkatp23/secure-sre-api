@@ -22,10 +22,16 @@ from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from fastapi import Request
 
+
 templates = Jinja2Templates(directory="templates")
 
 app = FastAPI()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+
+@app.get("/health")
+async def health_check():
+    # This returns a simple JSON 'OK' to Docker's healthcheck
+    return {"status": "healthy"}
 
 # Mock Database for Day 2
 fake_users_db = {
