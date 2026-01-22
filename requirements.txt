@@ -8,3 +8,6 @@ gunicorn
 uvicorn
 bandit
 safety
+pytest
+httpx
+pytest-asyncio

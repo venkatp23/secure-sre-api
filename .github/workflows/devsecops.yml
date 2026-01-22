@@ -1,0 +1,35 @@
+name: DevSecOps Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      # --- SECURITY GATES (Rank 1) ---
+      - name: Security Scan (Bandit)
+        run: bandit -r . -ll
+
+      - name: Dependency Audit (Safety)
+        run: safety check
+
+      # --- RELIABILITY GATES (Rank 2) ---
+      - name: Run Unit Tests (Pytest)
+        run: pytest
