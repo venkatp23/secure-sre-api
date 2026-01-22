@@ -37,7 +37,7 @@ async def health_check():
 fake_users_db = {
     "johndoe": {
         "username": "johndoe",
-        "hashed_password": hash_password("secret123"),
+        "hashed_password": hash_password("Choose-A-Strong-Service-Password-2026"),
     }
 }
 

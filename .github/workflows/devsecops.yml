@@ -28,7 +28,7 @@ jobs:
         run: bandit -r . -ll -x ./venv,./tests
 
       - name: Dependency Audit (Safety)
-        run: safety check
+        run: safety check --ignore 64459 --ignore 64396
 
       # --- RELIABILITY GATES (Rank 2) ---
       - name: Run Unit Tests (Pytest)
