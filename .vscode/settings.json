@@ -1,6 +1,8 @@
 {
     "cSpell.words": [
         "ASGI",
-        "healthcheck"
+        "healthcheck",
+        "Pytest",
+        "venv"
     ]
 }
