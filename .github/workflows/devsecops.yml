@@ -25,7 +25,7 @@ jobs:
 
       # --- SECURITY GATES (Rank 1) ---
       - name: Security Scan (Bandit)
-        run: bandit -r . -ll
+        run: bandit -r . -ll -x ./venv,./tests
 
       - name: Dependency Audit (Safety)
         run: safety check

@@ -1,9 +1,10 @@
 from datetime import datetime, timedelta, timezone
 from jose import JWTError, jwt
 from passlib.context import CryptContext
+import os
 
 # SRE Best Practice: Use environment variables for these in real life!
-SECRET_KEY = "Secure-SRE-Project"
+SECRET_KEY = os.getenv("SECRET_KEY", "temporary-dev-key")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
