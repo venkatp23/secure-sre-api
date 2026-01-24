@@ -1,26 +1,10 @@
-"""
-from fastapi import FastAPI, Header, HTTPException
-
-app = FastAPI(title="Secure-SRE API")
-
-@app.get("/health")
-def health_check():
-    # SRE: Basic endpoint for uptime monitoring
-    return {"status": "healthy", "version": "1.0.0"}
-
-@app.get("/secure-data")
-def get_data(x_api_key: str = Header(None)):
-    # Security: Simple header-based protection
-    if x_api_key != "secret-key-123":
-        raise HTTPException(status_code=403, detail="Unauthorized")
-    return {"data": "This is protected info"}
-"""
 from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from auth import create_access_token, verify_password, hash_password
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from fastapi import Request
+from ai_auditor import analyze_logs_with_ai
 
 
 templates = Jinja2Templates(directory="templates")
@@ -63,3 +47,16 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
 async def get_secure_data(token: str = Depends(oauth2_scheme)):
     # This endpoint is now protected by a JWT gate!
     return {"message": "SRE Reliability Tip: Always rotate your secrets!"}
+
+@app.post("/sre/audit")
+async def run_ai_audit(logs: str, token: str = Depends(oauth2_scheme)):
+    """
+    This endpoint allows an SRE to paste logs and get an 
+    immediate AI security and performance report.
+    """
+    # 1. We take the logs provided by the user
+    # 2. We send them to our Gemini 'Brain'
+    analysis = analyze_logs_with_ai(logs)
+    
+    # 3. We return the AI's wisdom
+    return {"ai_analysis": analysis}

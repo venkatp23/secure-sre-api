@@ -1,6 +1,9 @@
 {
     "cSpell.words": [
         "ASGI",
+        "dotenv",
+        "genai",
+        "generativeai",
         "healthcheck",
         "Pytest",
         "venv"
