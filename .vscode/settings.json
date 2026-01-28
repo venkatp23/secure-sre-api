@@ -5,7 +5,9 @@
         "genai",
         "generativeai",
         "healthcheck",
+        "pycache",
         "Pytest",
+        "tfstate",
         "venv"
     ]
 }

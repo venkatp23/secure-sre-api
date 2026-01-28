@@ -11,3 +11,10 @@ __pycache__/
 
 # OS files
 .DS_Store
+
+# Local Terraform folder (the big files)
+.terraform/
+
+# Terraform state files (security risk)
+*.tfstate
+*.tfstate.backup
