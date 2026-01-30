@@ -31,3 +31,10 @@ resource "aws_s3_bucket_public_access_block" "security_gate" {
 resource "random_id" "suffix" {
   byte_length = 4
 }
+
+# This creates the secret in your GitHub repository
+resource "github_actions_secret" "gemini_key" {
+  repository       = "secure-sre-api" 
+  secret_name      = "GEMINI_API_KEY"
+  plaintext_value  = var.gemini_api_key 
+}
