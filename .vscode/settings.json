@@ -2,9 +2,11 @@
     "cSpell.words": [
         "ASGI",
         "dotenv",
+        "fastapi",
         "genai",
         "generativeai",
         "healthcheck",
+        "passlib",
         "pycache",
         "Pytest",
         "tfstate",

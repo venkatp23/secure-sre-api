@@ -7,6 +7,7 @@ from fastapi import Request
 from ai_auditor import analyze_logs_with_ai
 
 
+
 templates = Jinja2Templates(directory="templates")
 
 app = FastAPI()

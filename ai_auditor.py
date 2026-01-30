@@ -1,16 +1,17 @@
 import os
-import google.generativeai as genai
+from google.genai import Client
 from dotenv import load_dotenv  # <-- Important: This reads your .env file
 import boto3
 from datetime import datetime
+import time
+from google.genai.errors import ClientError # Added for error handling
 
 # 1. Initialize: This pulls your secrets into the script
 load_dotenv(override=True)
 api_key = os.getenv("GEMINI_API_KEY")
 
 # 2. Configure the "Brain"
-genai.configure(api_key=api_key)
-model = genai.GenerativeModel('gemini-flash-latest')
+client = Client(api_key=api_key)
 
 def analyze_logs_with_ai(log_data: str):
     # This is the "Prompt" - how we talk to the AI
@@ -27,8 +28,19 @@ def analyze_logs_with_ai(log_data: str):
     2. 'summary': Short description of findings.
     3. 'recommendation': What the engineer should do.
     """
-    response = model.generate_content(prompt)
-    return response.text
+    for attempt in range(3):
+        try:
+            response = client.models.generate_content(
+                model='gemini-2.5-flash', 
+                contents=prompt
+            )
+            return response.text
+        except ClientError as e:
+            if "429" in str(e) and attempt < 2:
+                print(f"⚠️ [SRE] Rate limit hit. Retrying in 60s...")
+                time.sleep(60) # Wait longer each time
+                continue
+            raise e # If it still fails after 3 tries, stop.
 
 
 # ... (Logs uploading to Cloud function)
