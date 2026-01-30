@@ -32,9 +32,18 @@ resource "random_id" "suffix" {
   byte_length = 4
 }
 
+
 # This creates the secret in your GitHub repository
+
+# 1. Ask Terraform to "find" your repository first
+data "github_repository" "current" {
+  # Change this to your actual username and repo name!
+  full_name = "venkatp23/secure-sre-api"
+}
+
+# 2. Use the name from that search to create the secret
 resource "github_actions_secret" "gemini_key" {
-  repository       = "secure-sre-api" 
+  repository       = data.github_repository.current.name 
   secret_name      = "GEMINI_API_KEY"
-  plaintext_value  = var.gemini_api_key 
+  plaintext_value  = var.gemini_api_key
 }

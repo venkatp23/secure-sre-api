@@ -18,3 +18,7 @@ __pycache__/
 # Terraform state files (security risk)
 *.tfstate
 *.tfstate.backup
+
+# Terraform Secret Files
+*.tfvars
+*.tfvars.json

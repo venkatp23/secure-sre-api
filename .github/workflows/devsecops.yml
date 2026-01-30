@@ -32,4 +32,6 @@ jobs:
 
       # --- RELIABILITY GATES (Rank 2) ---
       - name: Run Unit Tests (Pytest)
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: pytest
