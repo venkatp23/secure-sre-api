@@ -9,7 +9,7 @@ services:
       - "8000:8000"
     restart: always  # SRE: Auto-restart on failure
     environment:
-      - GOOGLE_API_KEY=AIzaSyBAGIXyjsYRkYGTs_F-Yk_k1r0NGtA9ACg
+      - GOOGLE_API_KEY=${GEMINI_API_KEY}
     healthcheck:     # Reliability: Docker will check if the app is actually working
       test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
       interval: 30s
