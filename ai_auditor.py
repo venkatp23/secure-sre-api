@@ -1,91 +1,38 @@
 import os
-from google.genai import Client
-from dotenv import load_dotenv  # <-- Important: This reads your .env file
+import time
 import boto3
 from datetime import datetime
-import time
-from google.genai.errors import ClientError # Added for error handling
+from google.genai import Client
+from google.genai.errors import ClientError
+from dotenv import load_dotenv
 
-# 1. Initialize: This pulls your secrets into the script
 load_dotenv(override=True)
-api_key = os.getenv("GEMINI_API_KEY")
-
-# 2. Configure the "Brain"
-client = Client(api_key=api_key)
 
 def analyze_logs_with_ai(log_data: str):
-    # This is the "Prompt" - how we talk to the AI
+    # SRE Best Practice: Get the key and init client INSIDE the function
+    api_key = os.getenv("GEMINI_API_KEY")
+    
+    if not api_key:
+        # Instead of crashing, we return a helpful SRE message
+        return "Error: GEMINI_API_KEY not found in environment."
+
+    client = Client(api_key=api_key)
+    
     prompt = f"""
-    You are an expert DevSecOps Engineer. Analyze the following application logs 
-    for security threats (like SQL injection or Brute Force) and SRE performance 
-    issues (like latency spikes).
-    
-    LOGS:
-    {log_data}
-    
-    Return a response with:
-    1. 'threat_level': (Low/Medium/High)
-    2. 'summary': Short description of findings.
-    3. 'recommendation': What the engineer should do.
+    Analyze these logs for security threats and SRE performance issues.
+    LOGS: {log_data}
     """
+    
     for attempt in range(3):
         try:
             response = client.models.generate_content(
-                model='gemini-2.5-flash', 
+                model='gemini-2.0-flash', # Correcting to the standard flash model name
                 contents=prompt
             )
             return response.text
         except ClientError as e:
             if "429" in str(e) and attempt < 2:
-                print(f"⚠️ [SRE] Rate limit hit. Retrying in 60s...")
-                time.sleep(60) # Wait longer each time
+                time.sleep(60)
                 continue
-            raise e # If it still fails after 3 tries, stop.
-
-
-# ... (Logs uploading to Cloud function)
-
-def save_audit_to_s3(report_text: str, bucket_name: str):
-    """
-    Saves the AI analysis report to our secure S3 bucket with AES256 encryption.
-    """
-    s3 = boto3.client('s3')
-    
-    # Generate a unique filename using the current date and time
-    timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    filename = f"audit_logs/report_{timestamp}.txt"
-    
-    try:
-        s3.put_object(
-            Bucket=bucket_name,
-            Key=filename,
-            Body=report_text,
-            ServerSideEncryption='AES256'  # Rank 1: Security Requirement
-        )
-        print(f"🚀 [SRE] Report successfully vaulted to S3: {filename}")
-    except Exception as e:
-        print(f"⚠️ [SRE Error] Failed to upload to cloud: {e}")
-
-
-
-# --- QUICK TEST BLOCK ---
-if __name__ == "__main__":
-
-    # 1. Simulate a report
-
-    fake_logs = """
-    2026-01-22 10:01:01 - INFO - User 'admin' failed login - IP 192.168.1.50
-    2026-01-22 10:01:02 - INFO - User 'admin' failed login - IP 192.168.1.50
-    2026-01-22 10:01:03 - INFO - User 'admin' failed login - IP 192.168.1.50
-    2026-01-22 10:01:04 - INFO - User 'admin' failed login - IP 192.168.1.50
-    """
-
-    # 2. Use YOUR bucket name from the Terraform output or AWS Console
-    MY_BUCKET_NAME = "secure-sre-logs-41b3e3c1"
-
-    print("--- SRE AI Auditor is scanning logs ---")
-    analysis_report = analyze_logs_with_ai(fake_logs)
-    print(analysis_report)
-
-    print("\n--- ☁️ Step 2: Vaulting Report to AWS ---")
-    save_audit_to_s3(analysis_report, MY_BUCKET_NAME)
+            # If we hit the 20-request limit, we handle it gracefully
+            return f"AI Audit failed: {str(e)}"
