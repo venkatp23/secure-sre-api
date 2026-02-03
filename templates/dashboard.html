@@ -1,20 +1,44 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>SRE Dashboard</title>
+    <title>SRE Control Center</title>
     <style>
-        body { font-family: sans-serif; text-align: center; padding-top: 100px; background-color: #eef2f7; }
-        .success-box { background: white; display: inline-block; padding: 40px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        h1 { color: #28a745; }
-        .btn { display: inline-block; margin-top: 20px; padding: 10px 20px; background: #007bff; color: white; text-decoration: none; border-radius: 5px; }
+        body { font-family: sans-serif; text-align: center; padding: 50px; background-color: #eef2f7; }
+        .container { background: white; display: inline-block; padding: 40px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 80%; max-width: 600px; }
+        textarea { width: 100%; margin-top: 20px; border-radius: 8px; padding: 10px; }
+        .btn-audit { margin-top: 20px; padding: 12px 24px; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; }
     </style>
 </head>
 <body>
-    <div class="success-box">
-        <h1>Login Successful!</h1>
-        <p>Welcome to the <strong>Secure SRE API</strong></p>
-        <p id="user-info"></p>
-        <a href="/" class="btn">Logout</a>
+    <div class="container">
+        <h1>SRE Control Center</h1>
+        <p>Logged in as: <strong>SRE Engineer</strong></p>
+        <hr>
+        <h3>AI Security Auditor</h3>
+        <textarea id="logInput" rows="8" placeholder="Paste logs here..."></textarea><br>
+        <button onclick="runAudit()" class="btn-audit">Run Security Scan</button>
+        <div id="result" style="margin-top:20px; text-align:left; white-space: pre-wrap;"></div>
     </div>
+
+    <script>
+        async function runAudit() {
+            const logs = document.getElementById('logInput').value;
+            const token = localStorage.getItem('access_token');
+
+            // We add the logs directly to the URL as a 'query parameter'
+            const url = `/sre/audit?logs=${encodeURIComponent(logs)}`;
+
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Authorization': 'Bearer ' + token,
+                    'accept': 'application/json'
+                }
+            });
+
+            const data = await response.json();
+            document.getElementById('result').innerText = JSON.stringify(data, null, 2);
+        }
+    </script>
 </body>
 </html>

@@ -1,0 +1,7 @@
+global:
+  scrape_interval: 5s # How often to check the API (SREs like 5-15s)
+
+scrape_configs:
+  - job_name: "fastapi-monitoring"
+    static_configs:
+      - targets: ["api:8000"] # This matches the name in your docker-compose

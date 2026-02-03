@@ -2,11 +2,39 @@ version: '3.8'
 services:
   api:
     build: .
+    command: gunicorn -w 2 -k uvicorn.workers.UvicornWorker main:app --bind 0.0.0.0:8000 -t 120
+    volumes:
+      - .:/app  # This "links" your current folder to the /app folder in Docker
     ports:
       - "8000:8000"
     restart: always  # SRE: Auto-restart on failure
+    environment:
+      - GOOGLE_API_KEY=AIzaSyBAGIXyjsYRkYGTs_F-Yk_k1r0NGtA9ACg
     healthcheck:     # Reliability: Docker will check if the app is actually working
       test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
       interval: 30s
       timeout: 10s
       retries: 3
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus_sre
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    depends_on:
+      - api
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana_sre
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana-storage:/var/lib/grafana # This "pins" your data to your hard drive
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin # Default for learning
+    depends_on:
+      - api
+
+volumes:
+  grafana-storage:
